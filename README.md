@@ -1,0 +1,2 @@
+# cot-validation
+ whatcha thinking? 
