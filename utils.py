@@ -23,7 +23,7 @@ def batch_generate(df: pd.DataFrame = None, batch_size: int = 5) -> List[Dict[st
     return batches
 
 # prompts => toks 
-def tokens_generate(batches: List[Dict[str, Any]], tokenizer) -> List[Dict[str, Any]]:
+def tokens_generate(batches: List[Dict[str, Any]], tokenizer, device = 'mps') -> List[Dict[str, Any]]:
     """
     Tokenizes the 'prompts' field in each batch while keeping context. 
 
@@ -42,6 +42,7 @@ def tokens_generate(batches: List[Dict[str, Any]], tokenizer) -> List[Dict[str, 
             truncation = True, 
             return_tensors = 'pt'
         )
+        tokenized_prompts = {k: v.to(device) for k, v in tokenized_prompts.items()}
 
         tokenized_batches.append({
             "tokenized_prompts": tokenized_prompts, # dict. of tensors
@@ -52,30 +53,29 @@ def tokens_generate(batches: List[Dict[str, Any]], tokenizer) -> List[Dict[str, 
     return tokenized_batches
 
 # toks => response 
-def run_inference(model, tokens, time_tracking = True): 
+def run_inference(model, tokens, tokenizer, time_tracking = True) -> List: 
     """
-    Inference on tokenized batches + option for tracking inference time. 
+    Inference on tokenized batches + option for tracking inference time. Self-note: tokenizer arg. here is because tokenizer is needed for decoding.
     """
     outputs = []
     with torch.no_grad(): 
-        for batch_idx, batch in enumerate(tokens): 
-            inputs = {k: v.to(device) for k, v in batch['tokenized_prompts'].items()}
+        for i, batch in enumerate(tokens): 
             if time_tracking:
                 start_time = time.time()
 
-            outputs = model.generate(**inputs)
+            response = model.generate(**tokens[i]['tokenized_prompts'])
 
             if time_tracking:
                     inference_time = time.time() - start_time 
             else:
                 inference_time = None
 
-            decoded_outputs = tokenizer.batch_decode(outputs, skip_special_tokens = True)
+            decoded_response = tokenizer.batch_decode(response, skip_special_tokens = True)
 
             outputs.append({
-                "batch_idx": batch_idx,
-                "inputs": inputs,
-                "outputs": decoded_outputs,
+                "batch_idx": i,
+                "inputs": tokens[i]['tokenized_prompts'],
+                "outputs": decoded_response,
                 "labels": batch.get("labels", None),
                 "metadata": batch.get("metadata", {}),
                 "inference_time": inference_time
