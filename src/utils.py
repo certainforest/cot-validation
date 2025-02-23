@@ -10,14 +10,14 @@ def bloomer(n = 1):
     print('(˵◕ ɛ ◕˵✿)'+ ' ❀'*n)
 
 # df => list of dicts
-def batch_generate(df: pd.DataFrame = None, batch_size: int = 5) -> List[Dict[str, Any]]: 
+def batch_generate(df: pd.DataFrame = None, input_column = "prompt", target_column = "label", batch_size: int = 5) -> List[Dict[str, Any]]: 
     batches = []
     for i in range(0, len(df), batch_size):
         batch_df = df.iloc[i : i + batch_size]
         batch_dict = {
-            "prompts": batch_df["prompt"].tolist(),
-            "labels": batch_df["label"].tolist(),
-            "metadata": {col: batch_df[col].tolist() for col in df.columns if col not in ["prompt", "label"]},
+            "input": batch_df[input_column].tolist(),
+            "target": batch_df[target_column].tolist(),
+            "metadata": {col: batch_df[col].tolist() for col in df.columns if col not in [input_column, target_column]},
         }
         batches.append(batch_dict)
     return batches
@@ -37,7 +37,7 @@ def tokens_generate(batches: List[Dict[str, Any]], tokenizer, device = 'mps') ->
     tokenized_batches = []
     for batch in batches: 
         tokenized_prompts = tokenizer(
-            batch["prompts"],
+            batch["input"],
             padding = True, 
             truncation = True, 
             return_tensors = 'pt'
@@ -46,7 +46,7 @@ def tokens_generate(batches: List[Dict[str, Any]], tokenizer, device = 'mps') ->
 
         tokenized_batches.append({
             "tokenized_prompts": tokenized_prompts, # dict. of tensors
-            "labels": batch["labels"],
+            "target": batch["target"],
             "metadata": batch["metadata"]
         })
 
@@ -74,22 +74,17 @@ def run_inference(model, tokens, tokenizer, time_tracking = True) -> List:
 
             outputs.append({
                 "batch_idx": i,
-                "inputs": tokens[i]['tokenized_prompts'],
-                "outputs": decoded_response,
-                "labels": batch.get("labels", None),
+                "input": tokens[i]['tokenized_prompts'],
+                "response": decoded_response,
+                "target": batch.get("target", None),
                 "metadata": batch.get("metadata", {}),
                 "inference_time": inference_time
             })
 
     return outputs
-            
 
-# TK - check response format for <think></think> – check usage guide from HF; it's known that output doesn't always include the <think> tokens!
+## need function to check formatting 
+# TK - check response format for <think></think> – check usage guide from HF; it's known that output doesn't always include the <think> tokens! - maybe consolidate this with the bottom piece? 
 
-# response linting – need this for evals :3 (must disambiguate cot + final answer...in order to eval. correctness)
-    
+# TK – response linting – need this for evals :3 (must disambiguate cot + final answer...in order to eval. correctness)
 
-
-
-
-# TK – need function to check mem. usage :) 

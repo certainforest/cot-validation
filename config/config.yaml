@@ -1,21 +1,43 @@
 seed: 88
 
 models:
-    deepseek_r1_qwendistill_1.5: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
-    deepseek_r1_qwendistill_7: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
-    deepseek_v3: "deepseek-ai/DeepSeek-V3"
+    deepseek_r1_qwendistill_1.5: 
+        path: "deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
+        format: 
+            system: "You are an AI assistant specialized in logical and causal reasoning."
+            template: |
+            <im_start|>system
+            {system}<|im_end|>
+            <|im_start|>user
+            {content}<|im_end|>
+            <|im_start|>assistant
+    deepseek_r1_qwendistill_7: 
+        path: "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B"
+        format: 
+            system: "You are an AI assistant specialized in logical and causal reasoning."
+            template: |
+            <im_start|>system
+            {system}<|im_end|>
+            <|im_start|>user
+            {content}<|im_end|>
+            <|im_start|>assistant
+    deepseek_v3: 
+        path: "deepseek-ai/DeepSeek-V3"
+        format: 
+            system: "You are an AI assistant specialized in logical and causal reasoning."
+            template: "{system}\n### Instruction:\n{content}\n### Think:\n### Response:"
 
 datasets:
     cladder:
         source: "causalNLP/cladder"
         subset: "full_v1.5_default"
         input_column: "prompt"
-        output_column: "label"
+        target_column: "label"
     big_bench: 
         source: "maveriq/bigbenchhard"
         subset: "causal_judgement"
         input_column: "input" 
-        output_column: "target"
+        target_column: "target"
         additional_options:
             question_types: ['boolean_expressions', 'date_understanding', 'disambiguation_qa', 'dyck_languages', 'formal_fallacies', 'geometric_shapes', 'hyperbaton', 
             'logical_deduction_five_objects', 'logical_deduction_seven_objects', 'logical_deduction_three_objects', 'movie_recommendation', 'multistep_arithmetic_two', 'navigate', 'object_counting', 
