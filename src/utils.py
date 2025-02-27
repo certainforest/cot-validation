@@ -64,6 +64,7 @@ def run_inference(model, tokens, tokenizer, time_tracking = True) -> List[str]:
                 start_time = time.time()
 
             response = model.generate(**tokens[i]['tokenized_prompts'],
+                                      max_tokens = 2000,
                                       temperature = 0.6
                                      )
 
