@@ -53,7 +53,7 @@ def tokens_generate(batches: List[Dict[str, Any]], tokenizer, device = 'mps') ->
     return tokenized_batches
 
 # toks => response 
-def run_inference(model, tokens, tokenizer, time_tracking = True) -> List: 
+def run_inference(model, tokens, tokenizer, time_tracking = True) -> List[str]: 
     """
     Inference on tokenized batches + option for tracking inference time. Self-note: tokenizer arg. here is because tokenizer is needed for decoding.
     """
@@ -63,7 +63,9 @@ def run_inference(model, tokens, tokenizer, time_tracking = True) -> List:
             if time_tracking:
                 start_time = time.time()
 
-            response = model.generate(**tokens[i]['tokenized_prompts'])
+            response = model.generate(**tokens[i]['tokenized_prompts'],
+                                      temperature = 0.6
+                                     )
 
             if time_tracking:
                     inference_time = time.time() - start_time 
