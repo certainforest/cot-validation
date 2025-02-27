@@ -40,4 +40,5 @@ def apply_instruct_format(inputs: list, model: str = None, is_thinking = True, i
 
     return formatted_inputs
 
-# check + resubmit
+def extract_answer(response: List[Dict], ): 
+    
