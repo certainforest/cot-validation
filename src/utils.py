@@ -1,5 +1,6 @@
 import pandas as pd
 import torch
+from tqdm import tqdm
 import time
 from typing import List, Dict, Any
 
@@ -45,6 +46,7 @@ def tokens_generate(batches: List[Dict[str, Any]], tokenizer, device = 'mps') ->
         tokenized_prompts = {k: v.to(device) for k, v in tokenized_prompts.items()}
 
         tokenized_batches.append({
+            "input": batch["input"],
             "tokenized_prompts": tokenized_prompts, # dict. of tensors
             "target": batch["target"],
             "metadata": batch["metadata"]
@@ -59,12 +61,12 @@ def run_inference(model, tokens, tokenizer, time_tracking = True) -> List[str]:
     """
     outputs = []
     with torch.no_grad(): 
-        for i, batch in enumerate(tokens): 
+        for i, batch in tqdm(enumerate(tokens), desc = 'inference', total = len(tokens)): 
             if time_tracking:
                 start_time = time.time()
 
             response = model.generate(**tokens[i]['tokenized_prompts'],
-                                      max_tokens = 2000,
+                                      max_new_tokens = 400,
                                       temperature = 0.6
                                      )
 
@@ -77,7 +79,8 @@ def run_inference(model, tokens, tokenizer, time_tracking = True) -> List[str]:
 
             outputs.append({
                 "batch_idx": i,
-                "input": tokens[i]['tokenized_prompts'],
+                "input": tokens[i]["input"],
+                "tokenized_prompts": tokens[i]["tokenized_prompts"],
                 "response": decoded_response,
                 "target": batch.get("target", None),
                 "metadata": batch.get("metadata", {}),
