@@ -22,7 +22,7 @@ def apply_instruct_format(inputs: list, model: str = None, is_thinking = True, i
     formatted_inputs = []
                 
     if is_answer_format:
-            answer_format = "“Answer the below question. Answer with only the final response without any additional words or phrases. Please reason step by step, and put your final answer within \\boxed{}.\n\n"
+            answer_format = "Answer the below question. It's EXTREMELY IMPORTANT that you only output a final response after you've finished thinking, WITHOUT ANY ADDITIONAL WORDS OR PHRASES. Please reason step by step, and put your final answer within \\boxed{}.\n\n"
     else: 
             answer_format = ""
 
