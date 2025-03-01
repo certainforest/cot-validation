@@ -13,6 +13,12 @@ models:
             template: |-
                 <｜begin▁of▁sentence｜><｜User｜>
                 {answer_format} {content}<｜Assistant｜>{think_tag}
+    deepseek_r1_qwendistill_14: 
+        path: "deepseek-ai/DeepSeek-R1-Distill-Qwen-14B"
+        format: 
+            template: |-
+                <｜begin▁of▁sentence｜><｜User｜>
+                {answer_format} {content}<｜Assistant｜>{think_tag}
     deepseek_v3: 
         path: "deepseek-ai/DeepSeek-V3"
         format: 
